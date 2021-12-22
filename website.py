@@ -1,5 +1,7 @@
+import os
 import flask
 import threading
+import hashlib
 import logger
 
 app = flask.Flask("")
@@ -13,11 +15,6 @@ def status(info: str) -> str:
 @app.route("/")
 def root():
   return "hello world"
-
-
-@app.route("/view/<data>")
-def view(data):
-  return f"here's the place for viewing {data}"
 
 
 @app.route("/log", methods=["POST"])
@@ -36,6 +33,62 @@ def log():
     return flask.Response(status("Successed"), status=200, mimetype=mime)
   else:
     return flask.Response(status("Invaild token"), status=401, mimetype=mime)
+
+
+@app.route("/login", methods = ["POST", "GET"])
+def login():
+  if(flask.request.method == "POST"):
+    token = flask.request.form["token"]
+
+    if(token != ""):
+      resp = flask.make_response(flask.redirect("/view"))
+      sha: str = hashlib.sha256(token.encode()).hexdigest()
+      resp.set_cookie("token", sha)
+      return resp
+  
+  else:
+    token: str = flask.request.cookies.get("token")
+
+    if(token == os.environ["token"]):
+      return flask.redirect("/view")
+
+    else:
+      return flask.render_template("login.html")
+
+
+@app.route("/view")
+def view_root():
+  token: str = flask.request.cookies.get("token")
+
+  if(token == ""):
+    return flask.redirect("/login")
+
+  elif(token != os.environ["token"]):
+    return flask.redirect("/login?try-again=1") 
+
+  else:
+    return "hello, admin!"
+
+
+@app.route("/view/<cat>")
+def view(cat):
+  token: str = flask.request.cookies.get("token")
+
+  if(token == ""):
+    return flask.redirect("/login")
+
+  elif(token != os.environ["token"]):
+    return flask.redirect("/login?try-again=1") 
+
+  else:
+    if(os.path.exists(f"logs/{cat}.log")):
+      with open(f"logs/{cat}.log") as f:
+        result = ""
+        for l in reversed(f.readlines()):
+          result += l + "<br>"
+        return result
+    else:
+      return f"{cat} does not exists"
 
 
 def run():
