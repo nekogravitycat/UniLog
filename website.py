@@ -1,7 +1,6 @@
 import flask
 import threading
 import logger
-import verify
 
 app = flask.Flask("")
 mime: str = "application/json"
