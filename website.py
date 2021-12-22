@@ -52,7 +52,7 @@ def login():
   else:
     token: str = flask.request.cookies.get("token")
 
-    if(token == os.environ["token"]):
+    if(token == os.environ["login_token"]):
       return flask.redirect("/view")
 
     return flask.render_template("login.html")
@@ -65,7 +65,7 @@ def view_root():
   if(token == ""):
     return flask.redirect("/login")
     
-  elif(token != os.environ["token"]):
+  elif(token != os.environ["login_token"]):
     return flask.redirect("/login?try-again=1") 
     
   return "hello, admin!"
@@ -78,7 +78,7 @@ def view(cat):
   if(token == ""):
     return flask.redirect("/login")
     
-  elif(token != os.environ["token"]):
+  elif(token != os.environ["login_token"]):
     return flask.redirect("/login?try-again=1")
     
   if(os.path.exists(f"logs/{cat}.log")):
