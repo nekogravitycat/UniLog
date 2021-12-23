@@ -8,13 +8,12 @@ app = flask.Flask("")
 mime: str = "application/json"
 
 
+def slog(data: str):
+  logger.log("log", data, os.environ["log"])
+
+
 def status(info: str) -> str:
   return "{'status':'" + info + "'}"
-
-
-@app.route("/")
-def root():
-  return "hello world"
 
 
 @app.route("/log", methods=["POST"])
@@ -23,7 +22,7 @@ def log():
   
   for c in ["cat", "data", "token"]:
     if(not c in received):
-      print(f"Invaild post: field '{c}' is missing")
+      slog(f"Log invaild post: field '{c}' is missing")
       return flask.Response(status("Invaild post"), status=400, mimetype=mime)
 
   cat: str = received["cat"]
@@ -31,10 +30,10 @@ def log():
   token: str = received["token"]
   
   if(logger.log(cat, data, token)):
-    print(f"Successed: {cat}")
+    slog(f"Log successed: {cat}")
     return flask.Response(status("Successed"), status=200, mimetype=mime)
   else:
-    print(f"Invaild token '{token}' for '{cat}'")
+    slog(f"Log invaild token '{token}' for '{cat}'")
     return flask.Response(status("Invaild token"), status=401, mimetype=mime)
 
 
@@ -66,8 +65,10 @@ def view_root():
     return flask.redirect("/login")
     
   elif(token != os.environ["login_token"]):
+    slog(f"Invaild login token: {token}")
     return flask.redirect("/login?try-again=1") 
-    
+
+  slog("Successfully logged in")
   return "hello, admin!"
 
 
@@ -79,17 +80,20 @@ def view(cat):
     return flask.redirect("/login")
     
   elif(token != os.environ["login_token"]):
+    slog(f"Invaild view token: {token}")
     return flask.redirect("/login?try-again=1")
     
   if(os.path.exists(f"logs/{cat}.log")):
-    with open(f"logs/{cat}.log") as f:
-      result = ""
-      for l in reversed(f.readlines()):
-        result += l + "<br>"
-      return result
+    slog(f"Viewed log: {cat}")
+    return logger.view_html_reversed(cat)
       
   else:
     return f"{cat} does not exists"
+
+
+@app.route("/")
+def root():
+  return login()
 
 
 def run():
