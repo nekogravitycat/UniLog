@@ -7,7 +7,7 @@ def log(data: str):
   try:
     url = "https://UniLog.nekogravitycat.repl.co/log"
     data = {
-      "cat": "sn",
+      "cat": "name",
       "data": data,
       "token": os.environ["unilog_token"]
     }
