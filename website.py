@@ -30,7 +30,7 @@ def log():
   token: str = received["token"]
   
   if(logger.log(cat, data, token)):
-    slog(f"Log successed: {cat}")
+    print(f"Log successed: {cat}")
     return flask.Response(status("Successed"), status=200, mimetype=mime)
   else:
     slog(f"Log invaild token '{token}' for '{cat}'")
@@ -68,7 +68,7 @@ def view_root():
     slog(f"Invaild login token: {token}")
     return flask.redirect("/login?try-again=1") 
 
-  slog("Successfully logged in")
+  print("Successfully logged in")
   return flask.redirect("/view/log")
 
 
@@ -84,7 +84,7 @@ def view(cat):
     return flask.redirect("/login?try-again=1")
     
   if(os.path.exists(f"logs/{cat}.log")):
-    slog(f"Viewed log: {cat}")
+    print(f"Viewed log: {cat}")
     return logger.view_html_reversed(cat)
       
   else:
