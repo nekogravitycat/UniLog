@@ -69,7 +69,7 @@ def view_root():
     return flask.redirect("/login?try-again=1") 
 
   slog("Successfully logged in")
-  return "hello, admin!"
+  return flask.redirect("/view/log")
 
 
 @app.route("/view/<cat>")
