@@ -5,7 +5,7 @@ import requests
 def log(data: str):
   print(data)
   try:
-    url = "https://UniLog.nekogravitycat.repl.co/log"
+    url = "https://log.nekogc.com/log"
     data = {
       "cat": "name",
       "data": data,
