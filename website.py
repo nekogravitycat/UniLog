@@ -47,6 +47,9 @@ def login():
       sha: str = hashlib.sha256(token.encode()).hexdigest()
       resp.set_cookie("token", sha)
       return resp
+
+    else:
+      return flask.redirect("/login?try-again=1")
   
   else:
     token: str = flask.request.cookies.get("token")
